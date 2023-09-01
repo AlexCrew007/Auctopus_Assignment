@@ -1,0 +1,13 @@
+Step 1 : First Create a virtual Env and activate your env
+step 2 : Go to backend folder through terminal and run pip install  "pip install -r requirements.txt"  // for installing all the packages 	required in django
+step 3 : run  "python manage.py makemigrations" and then "python manage.py migrate" // create a database
+step 4 : and then run "python populate.py" // it will populate data in your database 
+
+step 5 : create a superuser  by "python manage.py createsuperuser" // creates a superuser
+step 6 : then finally run "python manage.py runserver" 
+step 7 : In another terminal, inside backend folder you got a folder name frontend so go to this directory and run command "npm install" so                    	that it install all the packages. // install required packages in react
+step 8 : in frontend terminal run npm build 
+step 9 : in frontend terminal run npm start
+
+after all these steps go to react server and use all funcationallity
+
