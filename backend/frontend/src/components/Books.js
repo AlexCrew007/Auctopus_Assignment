@@ -14,13 +14,13 @@ export const Books = ({title,price,description,image,id,category}) => {
   
   const user = useSelector(state => state.login.user);
 
-  function addToCartHandler(){
+  async function addToCartHandler(){
     if(!user)
     {
       navigate('/login')
     }
     else{
-      addToCart({id,access_token})
+      await addToCart({id,access_token})
       toast.success("Item added")
       cartItem.refetch(access_token);
     }
