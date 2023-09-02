@@ -12,43 +12,57 @@ import { Orders } from './pages/Orders';
 import { useUpdateTokenMutation } from './redux/services/api';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { LoginSlice } from './redux/slices/LoginSlice';
+import {  logout, setUser } from './redux/slices/LoginSlice';
 import { CartItem } from './components/Cartitems';
+import {  useSelector } from 'react-redux/es/hooks/useSelector';
 
 function App() {
 
-  const dispatch = useDispatch();
-  const authTokens = JSON.parse(localStorage.getItem('refresh_token')) || null
-  const [refreshTokensMutation, refreshTokensMutationState] = useUpdateTokenMutation();
+  const [updateTokens, useUpdateTokenMutationState] = useUpdateTokenMutation()
+  const state = useSelector( (state)=> state)
+  const refresh_token = state.login.refreshToken
+  const dispatch = useDispatch()
+
+  async function refreshTokens(refresh_token) {
+    try { 
+      const response = await updateTokens(refresh_token);
+      if (response.data) {
+        localStorage.setItem('access_token', JSON.stringify(response.data.access));
+        localStorage.setItem('refresh_token', JSON.stringify(response.data.refresh));
+        dispatch(setUser({ token: response.data.access, refreshToken: response.data.refresh }));
+        console.log("updateing...........")
+      }
+      else if (response.error.status === 401) {
+        console.log("Unauthorized. Logging out...");
+        localStorage.clear();
+        dispatch(logout());
+      } else {
+        console.error("Unexpected error:", response.statusText);
+      }
+    } catch (error) {
+      if (error.status === 'rejected') {
+        console.log("loggingggg.......out")
+        dispatch(logout());
+        localStorage.clear();
+      }
+    }
+  }
 
   useEffect(() => {
     const threeMinutes = 3 * 60 * 1000
+    const interval = setInterval(() => {
+      if (refresh_token) {
+        refreshTokens(refresh_token);
+      }
+    }, threeMinutes);
+    return ()=> clearInterval(interval)
+  }, [refresh_token, dispatch, updateTokens]);
 
-    const interval = setInterval(async () => {
-    if (authTokens) {
-      try {
-        const authTokens = JSON.parse(localStorage.getItem('refresh_token'))
-        if(authTokens){
-          const response = await refreshTokensMutation(authTokens);
-        
-        if (response.data) {
-          dispatch(LoginSlice.actions.setUser({ token: response.data.access, refreshToken: response.data.refresh }));
-          console.log("Tokens refreshed successfully.");
-        } else {
-          console.error("No response received from token refresh.");
-        }
-      }
-      } catch (error) {
-        dispatch(LoginSlice.actions.logout());
-        console.error("Error refreshing tokens:", error);
-      }
+  useEffect( ()=>{
+    if(refresh_token){
+      refreshTokens(refresh_token)
     }
-  }, threeMinutes);
-
-  return () => clearInterval(interval);
-}, [authTokens, refreshTokensMutationState]);
-
- 
+  },[])
 
   return (
     <div className="">
