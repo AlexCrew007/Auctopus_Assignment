@@ -37,7 +37,7 @@ class Book(models.Model):
 class CartItem(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     book = models.ForeignKey(Book, on_delete=models.CASCADE,null=True)
-    quantity = models.PositiveIntegerField(default=1)
+    quantity = models.PositiveIntegerField(default=0)
 
 
 #order table
