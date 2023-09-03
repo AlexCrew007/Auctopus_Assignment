@@ -1,8 +1,11 @@
 import { toast } from 'react-hot-toast';
-import {  useSelector } from 'react-redux';
+import {   useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useFetchCartItemsQuery } from '../redux/services/api';
 import { useAddCartItemsMutation } from '../redux/services/api';
+import Button from '@mui/material/Button';
+import { useState } from 'react';
+
 
 
 export const Books = ({title,price,description,image,id,category}) => {
@@ -11,7 +14,7 @@ export const Books = ({title,price,description,image,id,category}) => {
   const access_token = JSON.parse(localStorage.getItem('access_token'))
   const cartItem =  useFetchCartItemsQuery(access_token) 
   const [addToCart] = useAddCartItemsMutation()
-  
+  const [quantity, setQuantity] = useState(1)
   const user = useSelector(state => state.login.user);
 
   async function addToCartHandler(){
@@ -20,11 +23,25 @@ export const Books = ({title,price,description,image,id,category}) => {
       navigate('/login')
     }
     else{
-      await addToCart({id,access_token})
+      await addToCart({id,access_token,quantity})
       toast.success("Item added")
       cartItem.refetch(access_token);
     }
   }
+
+//Handle Quantity
+function quantityHandler(e){
+  e.preventDefault()
+  if(e.target.name ==='inc'){
+    setQuantity(quantity+1)
+  }
+  else{
+    if(quantity>1){
+      setQuantity(quantity-1)
+    }
+  }
+  
+}
 
 
   return (
@@ -47,6 +64,12 @@ export const Books = ({title,price,description,image,id,category}) => {
         <p>{category}</p> 
       </div>
       <div>
+      <div className='flex justify-center mb-3'>
+      <Button name='inc' onClick={quantityHandler}>+</Button>
+        <p className='text-green-600 font-semibold mt-1'>{quantity}</p>
+        <Button name='dec' onClick={quantityHandler}>-</Button>
+      </div>
+      <div className=' ml-4'>
         { 
           <button 
            className='text-gray-700 border-2 border-gray-700
@@ -55,7 +78,7 @@ export const Books = ({title,price,description,image,id,category}) => {
           hover:text-white transition duration-300 ease-in' 
           onClick={addToCartHandler}>Add to Cart</button>
         }
-        
+      </div>
       </div>
     </div>
   )
