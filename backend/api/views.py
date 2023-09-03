@@ -27,15 +27,27 @@ class CartItemViewSet(viewsets.ViewSet):
     def add_to_cart(self, request):
         user = request.user
         book_id = request.data.get('book_id')
-        quantity = request.data.get('quantity', 1)
+        quantity = request.data.get('quantity')
         book = Book.objects.get(id=book_id)
         cart_item, created = CartItem.objects.get_or_create(user=user, book=book)
-        if not created:
-            cart_item.quantity += quantity
-            cart_item.save()
+        cart_item.quantity += quantity
+        cart_item.save()
         serializer = CartitemSerializer(cart_item)
         return Response(serializer.data)
     
+    @action(detail=False, methods=['post'])
+    def update_cart(self, request):
+        user = request.user
+        book_id = request.data.get('book_id')
+        quantity = request.data.get('quantity')
+        book = Book.objects.get(id=book_id)
+        cart_item = CartItem.objects.get(user=user, book=book)
+        serializer = CartitemSerializer(cart_item, data={'quantity': quantity}, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+ 
     @action(detail=False, methods=['delete'])
     def delete_cart_item(self, request):
         user = request.user
@@ -54,8 +66,8 @@ class OrderViewSet(viewsets.ViewSet):
         user = request.user
         cart_items = CartItem.objects.filter(user=user)
 
-        if not cart_items:
-            return Response({'message': 'Cart is empty.'}, status=status.HTTP_400_BAD_REQUEST)
+        # if not cart_items:
+        #     return Response({'message': 'Cart is empty.'}, status=status.HTTP_400_BAD_REQUEST)
 
         for cart_item in cart_items:
             existing_order = Order.objects.filter(user=user, book=cart_item.book).first()
