@@ -15,7 +15,6 @@ export const Navbar = () => {
   const dispatch = useDispatch()
   
   const user = useSelector( (state) => state.login.user)
-  
   const access_token = JSON.parse(localStorage.getItem('access_token'))
   const cartItems = useFetchCartItemsQuery(access_token, {
     skip: !user, 
@@ -36,7 +35,12 @@ export const Navbar = () => {
       <img  className='h-14' src={image} alt='nav'></img>
       </div>
       </NavLink>
+      {
+        user &&
+        <p className='text-slate-200'>Hiii {user}</p>
+      }
       <div className='flex items-center  font-medium text-slate-100 ml-20 '>
+      
         <NavLink to={'/'}>
         <p> Home </p> 
         </NavLink>
@@ -75,6 +79,7 @@ export const Navbar = () => {
         </NavLink>
       </div>
       }
+      
       {
         user &&
           <NavLink to={'/cart'}>
@@ -92,6 +97,7 @@ export const Navbar = () => {
             </div>
           </NavLink>
       }
+      
     </nav>
     </div>
   )
