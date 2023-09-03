@@ -51,14 +51,14 @@ export const api = createApi({
             }}
         }),
 
-        fetchCartItems : builder.query({
+        fetchProfile: builder.query({
             query:(access_token)=>({
-                url:'cartitems/get_cart_items/',
+                url: 'user/',
                 method : 'GET',
-                headers: {
+                headers : {
                     'Content-Type' : 'application/json',
                     Authorization: `Bearer ${access_token}`,
-                  },
+                }
             })
         }),
 
@@ -71,6 +71,66 @@ export const api = createApi({
                 }
             })
         }),
+
+        fetchCartItems : builder.query({
+            query:(access_token)=>({
+                url:'cartitems/get_cart_items/',
+                method : 'GET',
+                headers: {
+                    'Content-Type' : 'application/json',
+                    Authorization: `Bearer ${access_token}`,
+                  },
+            })
+        }),
+
+        addCartItems : builder.mutation({
+            query : (params)=>{
+                return{
+                url : 'cartitems/add_to_cart/',
+                method : 'POST',
+                headers : {
+                    'Content-Type' : 'application/json',
+                    'Authorization' : `Bearer ${params.access_token}`,
+                },
+                body : JSON.stringify({
+                    'book_id' : params.id,
+                    'quantity' : params.quantity,
+                }),
+            }}
+        }),
+
+        updateCart : builder.mutation({
+            query : (params)=>{
+                return {
+                    url : 'cartitems/update_cart/',
+                    method : 'POST',
+                    headers : {
+                        'Content-Type' : 'application/json',
+                        'Authorization' : `Bearer ${params.access_token}`,
+                    },
+                    body : JSON.stringify({
+                        'book_id' : params.id,
+                        'quantity' : params.quantity,
+                    }),
+                }
+            }
+        }),
+
+
+        deleteCartItem: builder.mutation({
+            query:(params)=>{
+                return {
+                url:'cartitems/delete_cart_item/',
+                method : 'DELETE',
+                headers: {
+                    'Content-Type' : 'application/json',
+                    Authorization: `Bearer ${params.access_token}`,
+                  },
+                body : JSON.stringify({'book_id':params.id})
+            }
+        }
+        }),
+
         
         fetchOrders : builder.query({
             query:(access_token)=>({
@@ -93,47 +153,6 @@ export const api = createApi({
                   },
             })
         }),
-
-        deleteCartItem: builder.mutation({
-            query:(params)=>{
-                return {
-                url:'cartitems/delete_cart_item/',
-                method : 'DELETE',
-                headers: {
-                    'Content-Type' : 'application/json',
-                    Authorization: `Bearer ${params.access_token}`,
-                  },
-                body : JSON.stringify({'book_id':params.id})
-            }
-        }
-        }),
-
-        fetchProfile: builder.query({
-            query:(access_token)=>({
-                url: 'user/',
-                method : 'GET',
-                headers : {
-                    'Content-Type' : 'application/json',
-                    Authorization: `Bearer ${access_token}`,
-                }
-            })
-        }),
-
-        addCartItems : builder.mutation({
-            query : (params)=>{
-                return{
-                url : 'cartitems/add_to_cart/',
-                method : 'POST',
-                headers : {
-                    'Content-Type' : 'application/json',
-                    'Authorization' : `Bearer ${params.access_token}`,
-                },
-                body : JSON.stringify({
-                    'book_id' : params.id
-                }),
-            }}
-        }),
-        
     })
 })
 
@@ -142,4 +161,4 @@ export const api = createApi({
 export const { 
     useFetchCartItemsQuery, useFetchProfileQuery, useFetchBooksQuery, useFetchOrdersQuery,
     useDeleteCartItemMutation, useAuthenticateMutation, useAddCartItemsMutation,
-     useUserSignupMutation, useUpdateTokenMutation, usePlaceOrdersMutation } = api
+     useUserSignupMutation, useUpdateTokenMutation, usePlaceOrdersMutation, useUpdateCartMutation } = api
