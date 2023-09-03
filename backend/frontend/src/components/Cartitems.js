@@ -1,8 +1,10 @@
+import { useDeleteCartItemMutation } from '../redux/services/api';
+import { useFetchCartItemsQuery } from '../redux/services/api';
+import { useUpdateCartMutation } from '../redux/services/api';
+import Button from '@mui/material/Button';
 import React, { useState } from 'react'
 import {AiFillDelete} from 'react-icons/ai';
 import { toast } from 'react-hot-toast';
-import { useDeleteCartItemMutation } from '../redux/services/api';
-import { useFetchCartItemsQuery } from '../redux/services/api';
 
 
 export const CartItem = (item) => {
@@ -12,9 +14,12 @@ export const CartItem = (item) => {
 
   const booksItem=item.book
 
+  
   const [readMore,  setReadMore] = useState(true)
   const [deleteCartItem] = useDeleteCartItemMutation()
-  
+  const [updateCart, useUpdateCartMutationState ] = useUpdateCartMutation()
+
+  //Delete Handler delete items from cart
   async function deleteHandler() {
     try {
       await deleteCartItem({ access_token: access_token, id: item.book.id })
@@ -25,6 +30,27 @@ export const CartItem = (item) => {
     }
   }
 
+
+  //Handle Qunatity or Partially upadte Cart Items
+  async function quantityHandler(e){
+    e.preventDefault()
+    const type = e.target.name
+    let id = item.book.id
+    if(type==='inc'){
+      let quantity = item.quantity+1
+      await updateCart({id,access_token,quantity})
+    }
+    else{
+    let quantity = item.quantity-1
+    if(quantity>=1){
+      await updateCart({id,access_token,quantity})
+      cartItem.refetch();
+    }
+    }
+    cartItem.refetch();
+  }
+
+  
 
   return (
     <div className='flex mt-6  items-center '>
@@ -57,8 +83,11 @@ export const CartItem = (item) => {
             <p className='text-green-600 font-semibold'>{booksItem.price} <span>₹</span></p>
           </div>
           </div>
-          <div>
-            <p className='font-semibold'> Quantity : <span className='text-green-600 font'>{item.quantity}</span></p>
+          <p> Quantity :</p>
+          <div className='flex'>
+          <Button name='inc' onClick={quantityHandler}>+</Button>
+            <p className='font-semibold'> <span className='text-green-600 font'>{item.quantity}</span></p>
+            <Button name='dec' onClick={quantityHandler}>-</Button>
           </div>
           <div className='relative text-[40px] '>
             <button className='absolute -top-8 -right-2 rounded-full bg-red-400 text-3xl' onClick={deleteHandler}><AiFillDelete/></button>
